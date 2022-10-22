@@ -1,0 +1,41 @@
+.logout-button {
+    cursor: pointer;
+    border: 1px solid #f8f9fa;
+    color: #f8f9fa;
+    transition: all 0.3s ease-in-out;
+    border-radius: 0.1rem;
+}
+.logout-button:hover {
+    background-color: #f8f9fa !important;
+    color: #0d6efd;
+}
+.enter-room-button {
+    cursor: pointer;
+    border: 2px solid #f8f9fa;
+    color: #f8f9fa;
+    transition: all 0.3s ease-in-out;
+    border-radius: 0.1rem;
+}
+.enter-room-button:hover {
+    background-color: #f8f9fa !important;
+    color: #0d6efd;
+}
+.create-room-button {
+    cursor: pointer;
+    border: 2px solid #f8f9fa;
+    color: #f8f9fa;
+    transition: all 0.3s ease-in-out;
+    border-radius: 0.1rem;
+}
+.create-room-button:hover {
+    background-color: #f8f9fa !important;
+    color: #0d6efd;
+}
+.room-button > *:nth-child(1) {
+    border-right: 0px;
+}
+.room-button > *:nth-child(2) {
+    margin-left: -5px;
+    border-bottom-left-radius:0px;
+    border-top-left-radius:0px;
+}

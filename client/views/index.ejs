@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>chatApp | <%= title %> </title>
+        <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="./assets/css/style.css" />
+    </head>
+
+    <body class="bg-light">
+        <main>
+            <nav class="navbar bg-primary sticky-top px-5 py-3 d-flex justify-content-between">
+                <div class="nav-list col-2 lead fs-4 fw-bold text-light app-name">ChatApp</div>
+                <div class="nav-list col-8 text-center">
+                    <div class="room-button">
+                        <div class="enter-room-button d-inline px-3 py-3 fw-bold">Enter Room!</div>
+                        <div class="create-room-button d-inline px-3 py-3 fw-bold">Create Room!</div>
+                    </div>
+                </div>
+                <div class="nav-list col-2 text-end"><div class="logout-button d-inline px-3 py-2 fw-bold">Logout</div></div>
+            </nav>
+        </main>
+        <script src="./assets/js/sweetalert.min.js"></script>
+        <% if (login) { %>
+            <input type="hidden" name="login" value="true" />
+        <% } else { %>
+        <input type="hidden" name="username" value="<%= name %>" />
+        <% } %>
+        <script src="./assets/js/bootstrap.min.js"></script>
+        <script src="./assets/js/socket.io.min.js"></script>
+        <script src="./assets/js/script.js"></script>
+    </body>
+</html>
