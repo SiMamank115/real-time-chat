@@ -1,5 +1,5 @@
 const Server = require("socket.io").Server,
-// express
+    // express
     express = require("express"),
     app = express(),
     // socket io
@@ -11,9 +11,13 @@ const Server = require("socket.io").Server,
     bodyParser = require("body-parser"),
     port = process.env.PORT || 3000,
     // utils
+    uniqid = require("uniqid"),
     utility = require("./utility"),
+    ChatRoom = utility.module.ChatRoom,
     sleep = utility.module.sleep,
-    rooms = [];
+    rooms = {};
+
+let username;
 
 app.set("view engine", "ejs");
 app.set("views", "client/views");
@@ -24,23 +28,33 @@ app.use(cookieParser());
 
 io.on("connection", (socket) => {
     socket.on("logged_in", (e) => {
-        console.log(e.name + " has been logged in");
+        username = e.name;
+        console.log(username + " has been logged in");
     });
-    socket.on("join", () => {
-        let roomName = "room" + rooms.length
-        socket.join(roomName);
-    })
+    socket.on("create", (e) => {
+        let roomName = uniqid.process(undefined, "-" + username),
+            userId = socket.id;
+        console.log(username + ' has been created the "' + roomName + '" room');
+        rooms[roomName] = ChatRoom.create(username, roomName, socket);
+        io.to(userId).emit("created", true);
+    });
+    socket.on("room_list", () => {
+        let userId = socket.id;
+        io.to(userId).emit("room_list",rooms);
+    });
+    socket.on("disconnect", () => {});
 });
+
 app.get("/", (req, res) => {
     if (req.cookies.logged) {
         res.render("index", {
-            title:req.cookies.username,
+            title: req.cookies.username,
             login: false,
             name: req.cookies.username,
         });
     } else {
         res.render("index", {
-            title:"Welcome",
+            title: "Welcome",
             login: true,
         });
     }

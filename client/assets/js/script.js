@@ -1,10 +1,32 @@
-const socket = io();
+const socket = io(),
+    message = (client = true, text) => {
+        let system = false
+        if (client == "system") {
+            system = true
+        } else if (typeof client == "string") {
+            text = client;
+            client = true;
+        }
+        let chat = document.createElement("div");
+        chat.classList.add(..."col-12 d-flex px-5 pt-4 message-container".split(" "));
+        chat.innerHTML = `<div class="message ${system?"system":client ? "user" : "other-user"}-message"><div class="messagetext"><p>
+        ${text}
+        </p></div></div>`;
+        document.querySelector("section#chat").appendChild(chat);
+    };
 document.querySelector(".create-room-button").addEventListener("click", (e) => {
-    socket.emit("join");
+    socket.emit("create");
 });
-socket.on("message", e => {
+document.querySelector(".enter-room-button").addEventListener("click", (e) => {});
+socket.on("message", (e) => {
     console.log(e);
-})
+});
+socket.on("created", (e) => {
+    console.log(e);
+});
+socket.on("room_list", (e) => {
+    console.log(e);
+});
 if (document.querySelector("input[name=login]")) {
     Swal.fire({
         title: "Tulis nama mu",
@@ -38,6 +60,7 @@ if (document.querySelector("input[name=login]")) {
                     window.username = e[0].name;
                     socket.emit("logged_in", {
                         name: username,
+                        id: socket.id,
                     });
                     Swal.fire({
                         icon: "success",
@@ -60,5 +83,6 @@ if (document.querySelector("input[name=login]")) {
     window.username = document.querySelector("input[name=username]").value;
     socket.emit("logged_in", {
         name: username,
+        id: socket.id,
     });
 }
