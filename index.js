@@ -19,45 +19,57 @@ const Server = require("socket.io").Server,
     rooms = {},
     https = require("https");
 
-let username,
-    roomName,
-    telegramurl = "https://api.telegram.org/bot5780797435:AAFSpM9QgJo7-225ighnSFjcDei-T4e8ewk/sendMessage?chat_id=@faiz_logs&parse_mode=HTML&text=";
 app.set("view engine", "ejs");
 app.set("views", "client/views");
 app.use("/assets", express.static("client/assets"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
+let telegramurl = "https://api.telegram.org/bot5780797435:AAFSpM9QgJo7-225ighnSFjcDei-T4e8ewk/sendMessage?chat_id=@faiz_logs&parse_mode=HTML&text=";
 io.on("connection", (socket) => {
     socket.on("logged_in", (e) => {
-        username = e.name;
-        // https.get(telegramurl + username + " has been logged in");
-        console.log(username + " has been logged in");
+        socket.username = e.name;
+        // https.get(telegramurl + socket.username + " has been logged in");
+        console.log(socket.username + " has been logged in");
         io.to(socket.id).emit("message", {
-            client: "systemclient",
+            noSend: true,
+            client:"system",
             text: "Welcome !",
         });
     });
-    socket.on("join", (e) => {});
+    socket.on("enter", (e) => {
+        socket.roomName = e.id;
+        ChatRoom.join(socket.username, rooms[socket.roomName], socket);
+        rooms[socket.roomName].savedChat.forEach(e => {
+            io.to(socket.id).emit("message", {
+                noSend:true,
+                client:e.client,
+                text:e.text
+            })
+        });
+    });
     socket.on("create", (e) => {
-        (roomName = uniqid.process(undefined, "-" + username)), (userId = socket.id);
-        // https.get(telegramurl + username + ' has been created the "' + roomName + '" room');
-        rooms[roomName] = ChatRoom.create(username, roomName, socket);
-        console.log(username + ' has been created the "' + roomName + '" room');
-        rooms[roomName].userList.push(username);
-        io.to(userId).emit("created", roomName);
+        socket.roomName = uniqid.process(undefined, "-" + socket.username);
+        rooms[socket.roomName] = ChatRoom.create(socket.username, socket.roomName, socket);
+        rooms[socket.roomName].userList.push(socket.username);
+        console.log(socket.username + ' has been created the "' + socket.roomName + '" room');
+        io.to(socket.id).emit("created", socket.roomName);
     });
     socket.on("room_list", () => {
-        let userId = socket.id;
-        io.to(userId).emit("room_list", rooms);
+        io.to(socket.id).emit("room_list", rooms);
     });
     socket.on("message", (e) => {
-        rooms[e.roomName].savedChat.push(e.client,e.message);
+        if(!socket.roomName) return false;
+        rooms[socket.roomName].savedChat.push({ client: e.client, text: e.message });
+        return true
     });
     socket.on("disconnect", () => {
-        username && roomName && ChatRoom.left(username, rooms[roomName], socket);
-        // https.get(telegramurl + (username || "some user") + " have been disconnected");
-        console.log((username || "some user") + " has been disconnected");
+        socket.username && socket.roomName && ChatRoom.left(socket.username, rooms[socket.roomName], socket);
+        console.log((socket.username || "some user") + " has been disconnected");
+    });
+    socket.on("test", async (e) => {
+        console.log(io.sockets.adapter.rooms);
+        console.log(await io.in(socket.roomName).fetchSockets());
     });
 });
 
@@ -95,6 +107,6 @@ app.get("*", (req, res) => {
     res.status(404).render("errors/404");
 });
 
-httpServer.listen(port, () => {
+httpServer.listen(port, async () => {
     console.log("listening to " + port + " port");
 });

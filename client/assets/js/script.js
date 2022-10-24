@@ -14,28 +14,44 @@ const socket = io(),
         </p></div></div>`;
         document.querySelector("section#chat").appendChild(chat);
     };
-let roomActive;
+let roomActive, allRoom;
 document.querySelector(".create-room-button").addEventListener("click", (e) => {
     socket.emit("create");
     document.querySelector(".send-button").removeAttribute("disabled");
     document.querySelector(".message-input").removeAttribute("disabled");
 });
+document.querySelector(".enter-room-button").addEventListener("click", (e) => {
+    let rm = document.querySelectorAll("section#rooms>.list-group>*"),
+        active;
+    rm.forEach((e, x) => {
+        e.classList.contains("active") && (active = x);
+    });
+    if (active == undefined) return;
+    let roomKey = Object.keys(allRoom),
+        room = allRoom[roomKey[active]];
+    socket.emit("enter", room);
+    socket.emit("room_list");
+});
 // query the available rooms
 socket.emit("room_list");
 // message event
 socket.on("message", (e) => {
-    e.client == "systemclient" ? (e.client = "system") : socket.emit("message", e);
+    e.noSend && socket.emit("message", e);
+    console.log(e);
     message(e.client, e.text);
 });
 // create room event
 socket.on("created", (e) => {
     window.roomName = e;
+    socket.emit("message", { roomName, client: "system", message: username + " created this room" });
     message("system", username + " created this room");
 });
 // room list event
 socket.on("room_list", (e = {}) => {
+    allRoom = e;
     let keys = Object.keys(e);
     if (keys.length == 0) return;
+    document.querySelector("section#rooms>div").innerHTML = "";
     keys.forEach((x) => {
         roomList(e[x]);
     });
@@ -107,11 +123,12 @@ if (document.querySelector("input[name=login]")) {
         id: socket.id,
     });
 }
-const sendMessage = (message) => {
-    socket.emit("message", { message, roomName });
+const sendMessage = (message, client) => {
+    socket.emit("message", { message, client });
 };
 document.querySelector(".send-button").addEventListener("click", (e) => {
-    sendMessage(document.querySelector(".message-input").value);
+    sendMessage(document.querySelector(".message-input").value, true);
+    message(true, document.querySelector(".message-input").value);
     document.querySelector(".message-input").value = "";
     document.querySelector(".message-input").focus();
 });
