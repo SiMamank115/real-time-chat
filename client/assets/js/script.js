@@ -36,8 +36,7 @@ document.querySelector(".enter-room-button").addEventListener("click", (e) => {
 socket.emit("room_list");
 // message event
 socket.on("message", (e) => {
-    e.noSend && socket.emit("message", e);
-    console.log(e);
+    !e.noSend && socket.emit("message", e);
     message(e.client, e.text);
 });
 // create room event
