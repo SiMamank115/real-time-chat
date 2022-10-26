@@ -17,6 +17,7 @@ const Server = require("socket.io").Server,
     ChatRoom = utility.module.ChatRoom,
     sleep = utility.module.sleep,
     rooms = {},
+    takenName = [],
     https = require("https");
 
 app.set("view engine", "ejs");
@@ -28,24 +29,25 @@ app.use(cookieParser());
 let telegramurl = "https://api.telegram.org/bot5780797435:AAFSpM9QgJo7-225ighnSFjcDei-T4e8ewk/sendMessage?chat_id=@faiz_logs&parse_mode=HTML&text=";
 io.on("connection", (socket) => {
     socket.on("logged_in", (e) => {
+        takenName.push(e.name);
         socket.username = e.name;
         // https.get(telegramurl + socket.username + " has been logged in");
         console.log(socket.username + " has been logged in");
         io.to(socket.id).emit("message", {
             noSend: true,
-            client:"system",
+            client: "system",
             text: "Welcome !",
         });
     });
     socket.on("enter", (e) => {
         socket.roomName = e.id;
         ChatRoom.join(socket.username, rooms[socket.roomName], socket);
-        rooms[socket.roomName].savedChat.forEach(e => {
+        rooms[socket.roomName].savedChat.forEach((e) => {
             io.to(socket.id).emit("message", {
-                noSend:true,
-                client:e.client,
-                text:e.text
-            })
+                noSend: true,
+                client: e.client,
+                text: e.text,
+            });
         });
     });
     socket.on("create", (e) => {
@@ -59,17 +61,21 @@ io.on("connection", (socket) => {
         io.to(socket.id).emit("room_list", rooms);
     });
     socket.on("message", (e) => {
-        if(!socket.roomName) return false;
-        rooms[socket.roomName].savedChat.push({ client: e.client, text: e.message });
-        return true
+        if (!socket.roomName) return false;
+        rooms[socket.roomName].savedChat.push({ client: e.client == "system"?"system":socket.username, text: e.message });
+        return true;
     });
     socket.on("disconnect", () => {
         socket.username && socket.roomName && ChatRoom.left(socket.username, rooms[socket.roomName], socket);
         console.log((socket.username || "some user") + " has been disconnected");
     });
-    socket.on("test", async (e) => {
-        console.log(io.sockets.adapter.rooms);
-        console.log(await io.in(socket.roomName).fetchSockets());
+    socket.on("directmessage", async (e) => {
+        if (!socket.roomName) return false;
+        socket.to(socket.roomName).emit("message", {
+            noSend: true,
+            client: socket.username,
+            text: e,
+        });
     });
 });
 
@@ -90,6 +96,11 @@ app.get("/", (req, res) => {
 app.post("/login", async (req, res) => {
     if (req.body.name.search(/\W/i) > -1) {
         let errorText = ["Nama kamu kok aneh ya? coba dicek lagi!", "Coba hilangkan spasi dan simbol!", "Nama kamu tidak diterima disini!", "Pastikan nama kamu tidak ada spasi nya!", "Pastikan nama kamu tidak ada simbol nya!"];
+        res.status(500).json({
+            desc: errorText[Math.round(Math.random() * errorText.length)],
+        });
+    } else if(takenName.map(e=>e == req.body.name).findIndex(e=>e==1) > -1) {
+        let errorText = ["Nama kamu telah dipakai!","Nama kamu sedang dipakai!","Coba nama lain!","Nama kamu pasaran!","Pakai nama asli kamu dong!","Nama kamu diambil user lain!","Nama kamu dipakai user lain!"];
         res.status(500).json({
             desc: errorText[Math.round(Math.random() * errorText.length)],
         });

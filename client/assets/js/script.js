@@ -1,18 +1,32 @@
 const socket = io(),
     message = (client = true, text) => {
-        let system = false;
+        let system = !1,
+            sender;
         if (client == "system") {
             system = true;
-        } else if (typeof client == "string") {
-            text = client;
-            client = true;
+        } else if (client == username) {
+            sender = "You";
+            client = !0;
+        } else if (typeof client == "string" && client != username) {
+            sender = client;
+            client = !1;
+        } else {
+            return;
         }
-        let chat = document.createElement("div");
+        let chat = document.createElement("div"),
+            tooltip = !system ? ` data-bs-toggle="tooltip" data-bs-title="${sender}" data-bs-custom-class="custom-tooltip"` : "";
         chat.classList.add(..."col-12 d-flex px-5 pt-3 message-container".split(" "));
-        chat.innerHTML = `<div class="message ${system ? "system" : client ? "user" : "other-user"}-message"><div class="messagetext"><p>
-        ${text}
-        </p></div></div>`;
+        chat.innerHTML = `
+        <div ${tooltip} class="message ${system ? "system" : client ? "user" : "other-user"}-message">
+            <div class="messagetext">
+                <p>
+                    ${text}
+                </p>
+            </div>
+        </div>`;
         document.querySelector("section#chat").appendChild(chat);
+        let tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]'),
+            tooltipList = [...tooltipTriggerList].map((tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl));
     };
 let roomActive, allRoom;
 document.querySelector(".create-room-button").addEventListener("click", (e) => {
@@ -31,6 +45,8 @@ document.querySelector(".enter-room-button").addEventListener("click", (e) => {
         room = allRoom[roomKey[active]];
     socket.emit("enter", room);
     socket.emit("room_list");
+    document.querySelector(".send-button").removeAttribute("disabled");
+    document.querySelector(".message-input").removeAttribute("disabled");
 });
 // query the available rooms
 socket.emit("room_list");
@@ -123,28 +139,25 @@ if (document.querySelector("input[name=login]")) {
     });
 }
 const sendMessage = (message, client) => {
+    socket.emit("directmessage", message);
     socket.emit("message", { message, client });
 };
 document.querySelector(".send-button").addEventListener("click", (e) => {
     sendMessage(document.querySelector(".message-input").value, true);
-    message(true, document.querySelector(".message-input").value);
+    message(username, document.querySelector(".message-input").value);
     document.querySelector(".message-input").value = "";
     document.querySelector(".message-input").focus();
 });
 
-{
-    /*  <button type="button" class="d-flex justify-content-between list-group-item list-group-item-action border border-dark">
-            <div class="fw-500">username</div>
-            <div class="user-list pe-3 d-flex align-items-center">
-            <div>12</div>
-            <i class="bi-person-fill"></i>
-            </div>
-        </button> */
-}
 const roomList = (room) => {
     let btn = document.createElement("button");
     btn.setAttribute("type", "button");
     btn.classList.add(..."d-flex justify-content-between list-group-item list-group-item-action border border-dark".split(" "));
-    btn.innerHTML = `<div class="fw-500">${room.name}</div><div class="user-list pe-3 d-flex align-items-center"><div>${room.userList.length}</div><i class="bi-person-fill"></i></div>`;
+    btn.innerHTML = `
+    <div class="fw-500">${room.name}</div>
+    <div class="user-list pe-3 d-flex align-items-center">
+        <div>${room.userList.length}</div>
+        <i class="bi-person-fill"></i>
+    </div>`;
     document.querySelector("section#rooms>div").appendChild(btn);
 };

@@ -146,3 +146,9 @@ section#chat {
 .list-group-item + .list-group-item.active {
     margin-top: unset !important;
 }
+.custom-tooltip {
+    --bs-tooltip-font-size: .8rem;
+    --bs-tooltip-border-radius:0.2rem;
+    --bs-tooltip-padding-y:.1rem;
+    --bs-tooltip-padding-x:.3rem;
+}
