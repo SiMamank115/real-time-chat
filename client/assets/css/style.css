@@ -1,5 +1,9 @@
 @import url(/assets/css/poppins.css);
 @import url(/assets/css/bootstrap.icon.css);
+:root {
+    --under-nav: 85vh;
+    --chat-wd: 50%;
+}
 * {
     font-family: "Poppins" !important;
 }
@@ -24,6 +28,10 @@
     min-width: 100px;
     max-width: 150px;
 }
+.enter-room-button > span {
+    opacity: 1;
+    transition: opacity 0.15s ease-in-out;
+}
 .create-room-button {
     cursor: pointer;
     border: 2px solid #f8f9fa;
@@ -33,6 +41,10 @@
     width: 40%;
     min-width: 100px;
     max-width: 150px;
+}
+
+opacity-0 {
+    opacity: 0;
 }
 .room-button {
     display: flex;
@@ -57,17 +69,39 @@
 section#chat {
     height: max-content;
     min-height: 0;
+    padding-bottom: 5.35rem;
+}
+section#rooms,
+section#chat {
+    width: 50%;
+}
+section#rooms > div,
+section#chat {
+    max-height: var(--under-nav);
+    overflow-y: auto;
+}
+section#chat,
+section#rooms,
+.chat-bg {
+    min-width: 50%;
+    transition: width 0.3s ease-in, opacity 0.15s ease-in;
 }
 .chat-bg {
+    min-width: 0% !important;
+    z-index: -1;
     position: fixed;
     right: 0;
-    width: 50%;
+    width: var(--chat-wd);
     height: 100vh;
     top: 0;
     background: url(/assets/image/bg.jpg);
     background-position: 100% 50%;
     background-size: cover;
     background-origin: center center;
+}
+footer {
+    transition: width 0.3s ease-in, opacity 0.15s ease-in;
+    width: var(--chat-wd);
 }
 .circle {
     margin-left: -10px;
@@ -147,8 +181,20 @@ section#chat {
     margin-top: unset !important;
 }
 .custom-tooltip {
-    --bs-tooltip-font-size: .8rem;
-    --bs-tooltip-border-radius:0.2rem;
-    --bs-tooltip-padding-y:.1rem;
-    --bs-tooltip-padding-x:.3rem;
+    --bs-tooltip-font-size: 0.8rem;
+    --bs-tooltip-border-radius: 0.2rem;
+    --bs-tooltip-padding-y: 0.1rem;
+    --bs-tooltip-padding-x: 0.3rem;
+}
+.list-group-item > i {
+    color: #198754;
+}
+.list-group-item.active > i {
+    color: #f8f9fa !important;
+}
+@media (max-width: 768px) {
+    section#rooms,
+    section#chat {
+        width: 100%;
+    }
 }

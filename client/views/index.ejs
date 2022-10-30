@@ -11,30 +11,36 @@
 
     <body class="bg-light">
         <main class="d-flex flex-wrap">
-            <nav class="navbar bg-primary sticky-top px-5 py-1 d-flex justify-content-between col-12">
+            <nav class="navbar bg-primary sticky-top px-md-5 px-3 py-md-1 py-3 d-flex justify-content-between col-12">
                 <div class="nav-list col-2 lead fs-4 fw-800 text-light app-name">ChatApp</div>
-                <div class="nav-list col-8 text-center">
+                <div class="nav-list d-md-block d-none col-8 text-center">
                     <div class="room-button">
-                        <div class="enter-room-button d-inline px-3 py-3 fw-700">Enter Room!</div>
+                        <div class="enter-room-button d-inline px-3 py-3 fw-700">
+                            <span>Enter Room!</span>
+                            <span class="d-none opacity-0">Leave Room!</span>
+                        </div>
                         <div class="create-room-button d-inline px-3 py-3 fw-700">Create Room!</div>
                     </div>
                 </div>
-                <div class="nav-list col-2 text-end"><div class="logout-button d-inline px-3 py-2 fw-600">Logout</div></div>
+                <div class="nav-list d-md-block d-none col-2 text-end">
+                    <div class="logout-button d-inline px-3 py-2 fw-600">Logout</div>
+                </div>
             </nav>
-            <section id="rooms" class="w-50">
-                <div class="list-group rounded-0"></div>
+            <section id="rooms" class="">
+                <div class="list-group rounded-0">
+                    <button type="button" class="d-flex justify-content-between list-group-item list-group-item-action border border-dark">
+                        <div class="fw-500">AHHA</div>
+                        <i class="bi bi-patch-check-fill chat-check"></i>
+                        <div class="user-list pe-3 d-flex align-items-center">
+                            <div>1</div>
+                            <i class="bi-person-fill"></i>
+                        </div>
+                    </button>
+                </div>
             </section>
             <div class="chat-bg"></div>
-            <section id="chat" class="container-fluid row g-0 w-50">
-
-                <div class="col-12 d-flex px-5 pt-3 message-container">
-                    <div data-bs-toggle="tooltip" data-bs-title="You" data-bs-custom-class="custom-tooltip" class="message user-message">
-                        <div class="messagetext"><p>qweqweqwe</p></div>
-                    </div>
-                </div>
-
-            </section>
-            <footer class="footer position-fixed bottom-0 end-0 px-5 pb-3 bg-transparent w-50">
+            <section id="chat" class="container-fluid row g-0"></section>
+            <footer class="footer position-fixed bottom-0 end-0 px-5 pb-3 bg-transparent">
                 <div class="input-group mb-3">
                     <input disabled type="text" class="form-control border-primary message-input" placeholder="ketik pesan mu" />
                     <button disabled class="btn btn-primary send-button" type="button">Kirim</button>
